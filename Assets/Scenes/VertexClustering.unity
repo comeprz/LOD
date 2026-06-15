@@ -1661,10 +1661,10 @@ MonoBehaviour:
   spacingZBetweenMethods: 0
   spacingZBetweenMeshes: 5
   targetRatios:
-  - 0.75
   - 0.5
   - 0.25
   - 0.1
+  - 0.05
   vertexClusteringGridResolutions: 3200000023000000190000000f0000000a00000006000000
   computeError: 1
   errorSamples: 2000
