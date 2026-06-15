@@ -218,6 +218,7 @@ namespace LOD
                     {
                         IMeshSimplifier edgeCollapse = TryCreateSimplifier("LOD.EdgeCollapseSimplifier");
 
+
                         if (edgeCollapse != null)
                             simplifiers.Add(edgeCollapse);
                         else

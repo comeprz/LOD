@@ -10,9 +10,9 @@ namespace LOD
     /// rebranchement, suppression des faces dégénérées) est déléguée à MyMesh.
     /// QEM n'apporte que : quadriques, coût d'arête, min-heap, boucle gloutonne.
     /// </summary>
-    public class QemSimplifier : IMeshSimplifier
+    public class QEMSimplifier : IMeshSimplifier
     {
-        public string Name => "QEM (Garland-Heckbert)";
+        public string Name => "QEM";
 
         /// <summary>Refuser un collapse qui retourne une normale voisine (via CheckCollapseFlips).</summary>
         public bool PreventNormalFlips = true;

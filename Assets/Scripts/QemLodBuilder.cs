@@ -24,7 +24,7 @@ namespace LOD
             source.BuildAdjacency();
             int baseFaces = source.AliveFaceCount;
 
-            var simp = new QemSimplifier();
+            var simp = new QEMSimplifier();
             var meshes = new Mesh[ratios.Length];
 
             for (int i = 0; i < ratios.Length; i++)
