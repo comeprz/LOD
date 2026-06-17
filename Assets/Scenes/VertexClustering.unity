@@ -1561,16 +1561,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: rabbit
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1aaa077518a66994e958e20c4d14aa28, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1aaa077518a66994e958e20c4d14aa28, type: 3}
---- !u!33 &943272216 stripped
-MeshFilter:
-  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 1aaa077518a66994e958e20c4d14aa28, type: 3}
-  m_PrefabInstance: {fileID: 943272215}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1068980458
 GameObject:
   m_ObjectHideFlags: 0
@@ -1737,8 +1736,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LOD.LODRunner
   meshesToTest:
-  - meshName: Rabbit
-    sourceMeshFilter: {fileID: 943272216}
+  - meshName: SuzanneMillion
+    sourceMeshFilter: {fileID: 1548469838}
   resultsParent: {fileID: 2119445625}
   resultMaterial: {fileID: 2100000, guid: 7fade5d941bd2c6468ece4f6ff6e4fb8, type: 2}
   startPosition: {x: 0, y: 0, z: 0}
@@ -1753,6 +1752,11 @@ MonoBehaviour:
   vertexClusteringGridResolutions: 3200000023000000190000000f0000000a00000006000000
   computeError: 1
   errorSamples: 2000
+--- !u!33 &1548469838 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -8716633464901854893, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+  m_PrefabInstance: {fileID: 2035922250}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1800807080
 GameObject:
   m_ObjectHideFlags: 0
@@ -1965,6 +1969,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1949106871}
   m_CullTransparentMesh: 1
+--- !u!1001 &2035922250
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.44228268
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.863348
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.97983664
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.19980066
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -23.051
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
+      propertyPath: m_Name
+      value: SuzanneMillion
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 21ff4c5dbfabf9b44be130235616022c, type: 3}
 --- !u!1 &2089743574
 GameObject:
   m_ObjectHideFlags: 0
@@ -2145,3 +2206,4 @@ SceneRoots:
   - {fileID: 715536238}
   - {fileID: 184767034}
   - {fileID: 1800807083}
+  - {fileID: 2035922250}
