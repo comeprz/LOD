@@ -3,22 +3,14 @@ using UnityEngine;
 
 namespace LOD
 {
-    /// <summary>
-    /// Pont entre le Mesh Unity et notre MyMesh.
-    ///
-    /// IMPORTANT : les meshes importés (OBJ/FBX, Suzanne exportée de Blender)
-    /// dupliquent souvent les sommets sur les coutures (normales/UV différents).
-    /// Sans soudure, l'adjacence est cassée -> les collapses ne propagent pas et
-    /// le modèle "se fragmente" comme l'aggregation ratée du papier Garland.
-    /// On weld par défaut (positions quasi identiques -> un seul sommet).
-    /// </summary>
+    // Pont entre Mesh Unity et notre mesh
     public static class MeshConverter
     {
         public static MyMesh FromUnity(Mesh mesh, bool weld = true, float weldEpsilon = 1e-5f)
         {
             Vector3[] verts = mesh.vertices;
 
-            // on combine tous les submeshes en une seule liste de triangles
+            // Une seule liste de triangles
             var rawTris = new List<int>();
             for (int s = 0; s < mesh.subMeshCount; s++)
                 rawTris.AddRange(mesh.GetTriangles(s));
@@ -34,10 +26,8 @@ namespace LOD
                 return m;
             }
 
-            // --- soudure des sommets coïncidents ---
-            // quantize la position sur une grille de pas weldEpsilon -> clé de hash
-            var map = new Dictionary<long, int>();   // clé spatiale -> indice fusionné
-            int[] remap = new int[verts.Length];     // ancien indice -> nouvel indice
+            var map = new Dictionary<long, int>();
+            int[] remap = new int[verts.Length];
             float inv = 1f / weldEpsilon;
 
             for (int i = 0; i < verts.Length; i++)
@@ -46,7 +36,7 @@ namespace LOD
                 long kx = (long)Mathf.Round(p.x * inv);
                 long ky = (long)Mathf.Round(p.y * inv);
                 long kz = (long)Mathf.Round(p.z * inv);
-                // hash combiné (suffisant en pratique pour des meshes de TP)
+
                 long key = kx * 73856093L ^ ky * 19349663L ^ kz * 83492791L;
 
                 if (!map.TryGetValue(key, out int idx))
@@ -62,7 +52,7 @@ namespace LOD
                 int a = remap[rawTris[i]];
                 int b = remap[rawTris[i + 1]];
                 int c = remap[rawTris[i + 2]];
-                if (a == b || b == c || a == c) continue; // triangle écrasé par la soudure
+                if (a == b || b == c || a == c) continue;
                 m.AddFace(a, b, c);
             }
 
@@ -75,7 +65,7 @@ namespace LOD
             m.ToArrays(out Vector3[] verts, out int[] tris);
 
             var mesh = new Mesh { name = name };
-            // UInt32 pour supporter > 65535 sommets (meshes denses en entrée)
+
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             mesh.vertices = verts;
             mesh.triangles = tris;

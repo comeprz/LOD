@@ -91,6 +91,7 @@ namespace LOD
             // Reconstruction des triangles
             HashSet<string> addedTriangles = new HashSet<string>();
 
+            // Anciennes faces
             foreach (Face face in input.Faces)
             {   
                 // Check mort ou cassé
@@ -154,7 +155,7 @@ namespace LOD
             return bounds;
         }
 
-        // Calcul des cellules
+        // Sommet dans quelle cellule ?
         private Vector3Int GetCell(Vector3 position, Bounds bounds, int gridResolution)
         {
             Vector3 min = bounds.min;
@@ -173,7 +174,7 @@ namespace LOD
             return new Vector3Int(ix, iy, iz);
         }
 
-        // Tri
+        // Tri + petit au + grand
         private string TriangleKey(int a, int b, int c)
         {
             int min = Mathf.Min(a, Mathf.Min(b, c));

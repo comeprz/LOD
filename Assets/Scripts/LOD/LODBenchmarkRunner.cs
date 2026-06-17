@@ -52,9 +52,7 @@ namespace LOD
         public bool computeError = true;
         public int errorSamples = 2000;
 
-        // ------------------------------------------------------------
-        // Fonctions appelables par les boutons UI
-        // ------------------------------------------------------------
+        // Fonctions UI
 
         public void ShowVertexClustering()
         {
@@ -86,22 +84,7 @@ namespace LOD
             ClearPreviousResults();
         }
 
-        // Tu peux toujours lancer depuis le clic droit si besoin
-        [ContextMenu("Run Vertex Clustering")]
-        private void ContextRunVertexClustering()
-        {
-            ShowVertexClustering();
-        }
-
-        [ContextMenu("Run All Methods")]
-        private void ContextRunAllMethods()
-        {
-            ShowAllMethods();
-        }
-
-        // ------------------------------------------------------------
-        // Lancement principal
-        // ------------------------------------------------------------
+        // Lancement
 
         private void RunSelectedMethods(LODMethod[] methods)
         {
@@ -198,10 +181,7 @@ namespace LOD
             }
         }
 
-        // ------------------------------------------------------------
         // Création des méthodes
-        // ------------------------------------------------------------
-
         private List<IMeshSimplifier> BuildSimplifiers(LODMethod[] methods)
         {
             List<IMeshSimplifier> simplifiers = new List<IMeshSimplifier>();
@@ -268,10 +248,7 @@ namespace LOD
             return null;
         }
 
-        // ------------------------------------------------------------
         // Affichage
-        // ------------------------------------------------------------
-
         private void CreateDisplayObject(
             string meshName,
             string lodName,

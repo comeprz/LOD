@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace LOD
 {
-    /// <summary>
-    /// Une face triangulaire. On garde un flag "alive" pour pouvoir supprimer
-    /// sans réindexer tout le tableau à chaque opération (réindexation -> Compact()).
-    /// </summary>
     public struct Face
     {
         public int v0, v1, v2;
@@ -21,7 +17,6 @@ namespace LOD
 
         public bool IsDegenerate() => v0 == v1 || v1 == v2 || v0 == v2;
 
-        /// <summary>Remplace l'indice "from" par "to" (utilisé lors d'un collapse).</summary>
         public Face Replaced(int from, int to)
         {
             var f = this;
@@ -32,32 +27,19 @@ namespace LOD
         }
     }
 
-    /// <summary>
-    /// Structure de maillage interne, partagée par les 3 méthodes (clustering,
-    /// edge collapse, QEM). Sommets + faces indexées + adjacence sommet->faces.
-    ///
-    /// - Vertex clustering : reconstruit un mesh neuf, lit juste Positions/Faces.
-    /// - Edge collapse / QEM : utilisent CollapseEdge() + VertexFaces pour l'adjacence.
-    ///
-    /// L'opération CollapseEdge est commune (édition pure de topologie, sans
-    /// notion de coût). Le COÛT (longueur d'arête vs quadrique) et la boucle
-    /// (heap) restent propres à chaque dev.
-    /// </summary>
+    // Mesh avec les 3 méthodes
     public class MyMesh
     {
         public List<Vector3> Positions = new List<Vector3>();
         public List<bool> VertexAlive = new List<bool>();
         public List<Face> Faces = new List<Face>();
 
-        /// <summary>Pour chaque sommet : l'ensemble des indices de faces incidentes.</summary>
         public List<HashSet<int>> VertexFaces = new List<HashSet<int>>();
 
         public int AliveVertexCount { get; private set; }
         public int AliveFaceCount { get; private set; }
 
-        // ---------------------------------------------------------------------
         // Construction
-        // ---------------------------------------------------------------------
 
         public int AddVertex(Vector3 p)
         {
@@ -73,16 +55,12 @@ namespace LOD
             return Faces.Count - 1;
         }
 
-        /// <summary>
-        /// (Re)construit l'adjacence sommet->faces et recompte les éléments vivants.
-        /// À appeler une fois le mesh chargé, avant toute simplification par collapse.
-        /// </summary>
+        // Adjacence sommets => faces
         public void BuildAdjacency()
         {
             for (int i = 0; i < VertexFaces.Count; i++)
                 VertexFaces[i].Clear();
 
-            // au cas où le nombre de sommets aurait changé
             while (VertexFaces.Count < Positions.Count)
                 VertexFaces.Add(new HashSet<int>());
 
@@ -103,11 +81,7 @@ namespace LOD
                 if (VertexAlive[i]) AliveVertexCount++;
         }
 
-        // ---------------------------------------------------------------------
-        // Adjacence / requêtes
-        // ---------------------------------------------------------------------
-
-        /// <summary>Sommets voisins (reliés par une arête) du sommet v.</summary>
+        // Sommets voisins
         public HashSet<int> NeighborVertices(int v)
         {
             var result = new HashSet<int>();
@@ -122,10 +96,7 @@ namespace LOD
             return result;
         }
 
-        /// <summary>
-        /// Énumère chaque arête (a,b) une seule fois (a &lt; b) à partir des faces vivantes.
-        /// Pratique pour initialiser le tas des candidats au collapse.
-        /// </summary>
+        // Enumération des arêtes à partir des faces vivantes
         public IEnumerable<(int a, int b)> EnumerateEdges()
         {
             var seen = new HashSet<long>();
@@ -140,10 +111,6 @@ namespace LOD
                 }
             }
         }
-
-        // ---------------------------------------------------------------------
-        // Édition de topologie
-        // ---------------------------------------------------------------------
 
         private void KillFace(int fi)
         {
@@ -237,24 +204,13 @@ namespace LOD
             return false;
         }
 
-        // ---------------------------------------------------------------------
-        // Géométrie utilitaire
-        // ---------------------------------------------------------------------
-
         public Vector3 FaceNormal(Face f)
         {
             Vector3 a = Positions[f.v0], b = Positions[f.v1], c = Positions[f.v2];
             return Vector3.Cross(b - a, c - a).normalized;
         }
 
-        // ---------------------------------------------------------------------
-        // Compaction / export
-        // ---------------------------------------------------------------------
-
-        /// <summary>
-        /// Produit des tableaux propres et réindexés (sommets/triangles vivants
-        /// uniquement), prêts pour Unity. N'altère pas le mesh courant.
-        /// </summary>
+        // Tableaux sommets / triangles vivants
         public void ToArrays(out Vector3[] outVerts, out int[] outTris)
         {
             int[] remap = new int[Positions.Count];
@@ -281,7 +237,7 @@ namespace LOD
             outTris = tris.ToArray();
         }
 
-        /// <summary>Copie profonde (utile pour lancer les 3 méthodes sur la même source).</summary>
+        // Copie
         public MyMesh Clone()
         {
             var m = new MyMesh
