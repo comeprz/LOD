@@ -7,15 +7,11 @@ namespace LOD
     {
         public string Name => "Edge Collapse";
 
-        /// <summary>Refuse un collapse si une face voisine s'inverse (dot &lt; ce seuil).</summary>
-        public float NormalFlipThreshold = 0.0f;   // 0 = bloque si l'angle dépasse 90°
+        public float NormalFlipThreshold = 0.0f; // 0 = bloque si l'angle dépasse 90°
 
-        /// <summary>Repousse les arêtes de bord en fin de file pour préserver la silhouette.</summary>
         public bool PreserveBoundaries = true;
         public float BoundaryPenalty = 1000f;
-
-        // entrée du tas : un collapse candidat, avec les versions des 2 sommets
-        // au moment du push (sert à détecter les entrées périmées).
+        
         private struct Collapse
         {
             public int vKeep, vRemove;
@@ -25,7 +21,7 @@ namespace LOD
 
         public MyMesh Simplify(MyMesh input, int targetTriangleCount)
         {
-            MyMesh m = input.Clone();           // on ne mute jamais la source
+            MyMesh m = input.Clone();
 
             int[] version = new int[m.Positions.Count];
 
@@ -64,7 +60,7 @@ namespace LOD
                 });
             }
 
-            // init : une entrée par arête unique
+            // une entrée par arête unique
             foreach (var (a, b) in m.EnumerateEdges())
                 PushEdge(a, b);
 
@@ -73,22 +69,21 @@ namespace LOD
             {
                 var (_, c) = heap.Pop();
 
-                // 1) validation lazy : sommets vivants + versions à jour
+                // validation
                 if (!m.VertexAlive[c.vKeep] || !m.VertexAlive[c.vRemove]) continue;
                 if (version[c.vKeep] != c.verKeep || version[c.vRemove] != c.verRemove) continue;
 
-                // 2) sécurité : l'arête existe-t-elle encore ? (sinon collapse non défini)
+                // l'arête existe-t-elle encore ? 
                 if (SharedFaceCount(c.vKeep, c.vRemove) == 0) continue;
 
-                // 3) anti-inversion : on saute si ça replie une face voisine
+                // on skip si ça replie une face voisine
                 if (m.CheckCollapseFlips(c.vKeep, c.vRemove, c.newPos, NormalFlipThreshold))
                     continue;
 
-                // 4) on contracte
+                // on collapse
                 m.CollapseEdge(c.vKeep, c.vRemove, c.newPos);
 
-                // 5) vKeep a bougé : toutes ses arêtes changent de coût.
-                //    On invalide les anciennes entrées (bump version) et on re-pushe.
+                // les arrete change de cout : on refait le tableau
                 version[c.vKeep]++;
                 foreach (int n in m.NeighborVertices(c.vKeep))
                     PushEdge(c.vKeep, n);
@@ -97,10 +92,7 @@ namespace LOD
             return m;
         }
 
-        // =====================================================================
-        // Min-heap binaire (clé = float). Pas de PriorityQueue garanti côté Unity,
-        // donc implémentation maison. ~30 lignes.
-        // =====================================================================
+        // Tas binaire pour garder les tailles
         private class MinHeap<T>
         {
             private struct Node { public float key; public T value; }
