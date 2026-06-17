@@ -7,31 +7,15 @@ namespace LOD
     {
         public string Name => "Vertex Clustering";
 
-        private int fixedGridResolution;
         private int[] candidateGridResolutions;
 
-        // Mode simple : une seule résolution de grille
-        public VertexClusteringSimplifier(int gridResolution)
-        {
-            fixedGridResolution = Mathf.Max(1, gridResolution);
-            candidateGridResolutions = null;
-        }
-
-        // Mode adaptatif : plusieurs résolutions, on garde celle qui approche le mieux targetTriangleCount
+        // Plusieurs résolutions
         public VertexClusteringSimplifier(int[] gridResolutions)
         {
             if (gridResolutions == null || gridResolutions.Length == 0)
                 gridResolutions = new int[] { 40, 25, 15, 8 };
 
             candidateGridResolutions = gridResolutions;
-            fixedGridResolution = -1;
-        }
-
-        // Constructeur vide utile pour ton benchmark global
-        public VertexClusteringSimplifier()
-        {
-            candidateGridResolutions = new int[] { 40, 25, 15, 8 };
-            fixedGridResolution = -1;
         }
 
         public MyMesh Simplify(MyMesh input, int targetTriangleCount)
@@ -39,12 +23,7 @@ namespace LOD
             if (input == null || input.Positions.Count == 0)
                 return input;
 
-            // Si on est en mode résolution fixe
-            if (candidateGridResolutions == null)
-                return SimplifyWithGrid(input, fixedGridResolution);
-
-            // Sinon, mode adaptatif :
-            // on teste plusieurs résolutions et on garde celle qui se rapproche le plus du nombre de triangles demandé
+            // Plusieurs résolutions, on garde celle qui est +- égale a triangleCount
             MyMesh bestMesh = null;
             int bestDifference = int.MaxValue;
 
@@ -70,10 +49,13 @@ namespace LOD
         {
             Bounds bounds = ComputeBounds(input);
 
+            // Cellules, sommets
             Dictionary<Vector3Int, List<int>> clusters = new Dictionary<Vector3Int, List<int>>();
+
+            // Sommets, cellules
             Dictionary<int, Vector3Int> vertexToCell = new Dictionary<int, Vector3Int>();
 
-            // 1) Chaque sommet vivant est placé dans une cellule de la grille
+            // Sommet vivant dans cellule
             for (int i = 0; i < input.Positions.Count; i++)
             {
                 if (!input.VertexAlive[i])
@@ -88,7 +70,7 @@ namespace LOD
                 vertexToCell[i] = cell;
             }
 
-            // 2) Chaque cellule devient un nouveau sommet moyen
+            // Cellule => sommet moyen
             MyMesh output = new MyMesh();
             Dictionary<Vector3Int, int> cellToNewVertex = new Dictionary<Vector3Int, int>();
 
@@ -96,6 +78,7 @@ namespace LOD
             {
                 Vector3 average = Vector3.zero;
 
+                // + positions des sommets, / par le nombre de sommets => sommets moyens
                 foreach (int oldVertexIndex in pair.Value)
                     average += input.Positions[oldVertexIndex];
 
@@ -105,35 +88,37 @@ namespace LOD
                 cellToNewVertex[pair.Key] = newIndex;
             }
 
-            // 3) Reconstruction des triangles
+            // Reconstruction des triangles
             HashSet<string> addedTriangles = new HashSet<string>();
 
             foreach (Face face in input.Faces)
-            {
+            {   
+                // Check mort ou cassé
                 if (!face.alive || face.IsDegenerate())
                     continue;
 
+                // Check sommets bien présents
                 if (!vertexToCell.ContainsKey(face.v0) ||
                     !vertexToCell.ContainsKey(face.v1) ||
                     !vertexToCell.ContainsKey(face.v2))
                     continue;
 
+                // Nouveaux sommets
                 int a = cellToNewVertex[vertexToCell[face.v0]];
                 int b = cellToNewVertex[vertexToCell[face.v1]];
                 int c = cellToNewVertex[vertexToCell[face.v2]];
 
-                // Triangle dégénéré : deux sommets sont devenus identiques
+                // Triangle cassé, deux sommets identiques
                 if (a == b || b == c || a == c)
                     continue;
 
-                // Évite les triangles doublons
+                // Doublons
                 string key = TriangleKey(a, b, c);
                 if (addedTriangles.Contains(key))
                     continue;
 
                 addedTriangles.Add(key);
 
-                // On garde l'ordre original pour préserver les normales
                 output.AddFace(a, b, c);
             }
 
@@ -141,6 +126,7 @@ namespace LOD
             return output;
         }
 
+        // Box globale
         private Bounds ComputeBounds(MyMesh mesh)
         {
             bool foundFirst = false;
@@ -151,11 +137,14 @@ namespace LOD
                 if (!mesh.VertexAlive[i])
                     continue;
 
+                // Créé une box centrée sur sommet
                 if (!foundFirst)
                 {
                     bounds = new Bounds(mesh.Positions[i], Vector3.zero);
                     foundFirst = true;
                 }
+
+                // Agrandir, contenir sommet
                 else
                 {
                     bounds.Encapsulate(mesh.Positions[i]);
@@ -165,15 +154,18 @@ namespace LOD
             return bounds;
         }
 
+        // Calcul des cellules
         private Vector3Int GetCell(Vector3 position, Bounds bounds, int gridResolution)
         {
             Vector3 min = bounds.min;
             Vector3 size = bounds.size;
 
+            // Normalisation des sommets
             float x = size.x == 0 ? 0 : (position.x - min.x) / size.x;
             float y = size.y == 0 ? 0 : (position.y - min.y) / size.y;
             float z = size.z == 0 ? 0 : (position.z - min.z) / size.z;
 
+            // Conversion en cellules
             int ix = Mathf.Clamp(Mathf.FloorToInt(x * gridResolution), 0, gridResolution - 1);
             int iy = Mathf.Clamp(Mathf.FloorToInt(y * gridResolution), 0, gridResolution - 1);
             int iz = Mathf.Clamp(Mathf.FloorToInt(z * gridResolution), 0, gridResolution - 1);
@@ -181,6 +173,7 @@ namespace LOD
             return new Vector3Int(ix, iy, iz);
         }
 
+        // Tri
         private string TriangleKey(int a, int b, int c)
         {
             int min = Mathf.Min(a, Mathf.Min(b, c));
